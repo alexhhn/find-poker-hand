@@ -2,96 +2,156 @@ import { useState } from 'react';
 import './App.css';
 
 function App() {
-    const poker = require('poker-hands')
-    const [pokerHand, setPokerHand] = useState("")
-    const [inspectHand, setInspectHand] = useState("")
+    // const poker = require('poker-hands')
+    let deck = [];
+    const fakeCardsInHands = [
+        { number: 'A', symbol: "H", value: 14 },
+        { number: 'A', symbol: "S", value: 14 },
+        { number: 'A', symbol: "K", value: 14 },
+        { number: 'K', symbol: "R", value: 13 },
+        { number: 'K', symbol: "H", value: 13 }
+    ];
+    const [cardsInHand, setCardsInHands] = useState(fakeCardsInHands);
+
+    const Cards = ({ cardsInHand }) => {
+        return (
+            <div className="cards">
+                {cardsInHand.map((card, i) => (
+                    <Card key={i} number={card.number} symbol={card.symbol} />
+                ))}
+            </div>
+        );
+    };
+
+    const Card = ({ number, symbol }) => {
+        return (
+            <div className="card">
+                {number} {symbol}
+            </div>
+        );
+    };
 
     function createDeck() {
 
         const suits = ['H', 'R', 'K', 'S'];
         const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-        const deck = [];
+        const value = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
         //itererer gjennom alle kort
 
         for (var suitsCounter = 0; suitsCounter < 4; suitsCounter++) {
             for (var ranksCounter = 0; ranksCounter < 13; ranksCounter++) {
                 // returner verdi tall + symbol
-                deck.push(ranks[ranksCounter] + suits[suitsCounter])
+                deck.push({ number: ranks[ranksCounter], symbol: suits[suitsCounter], value: value[ranksCounter] })
             }
         }
-
         return deck;
     }
 
-    function shuffleDeck(deck) {
+
+    function shuffleDeck(cardInHand) {
         for (var i = 0; i < 52; i++) {
             //kort blir trukket
-            var temporaryCard = deck[i];
+            var temporaryCard = cardInHand[i];
             //plasser kort tilfeldig i dekket
             var randomIndex = Math.floor(Math.random() * 52);
-            deck[i] = deck[randomIndex];
+            cardInHand[i] = cardInHand[randomIndex];
             //tilfeldig kort blir nå vist frem til index 52
-            deck[randomIndex] = temporaryCard;
+            cardInHand[randomIndex] = temporaryCard;
         }
     }
 
 
-    function drawNewCards(pokerHand) {
+    function drawNewCards() {
         let testDeck = createDeck();
         shuffleDeck(testDeck)
-        pokerHand = testDeck.splice(0, 5);
-        const pokerHandJoined = pokerHand.join(' ');
-        setPokerHand(pokerHandJoined)
-        console.log(pokerHandJoined)
-        console.log("test", poker.getHandStrength(pokerHandJoined))
-        result(pokerHand)
+        result(cardsInHand)
     }
 
+    function hasRoyalFlush(cards) {
+        return hasStraightFlush(cards) && cards[0].value === 10;
+    }
 
+    function hasStraightFlush(cards) {
+        if (hasFlush(cards)) {
+            return hasStraight(cards);
+        }
+    }
 
+    function hasFourOfAKind(cards) {
+        let sameValue = cards.filter(function (item) {
+            return item.value === cards[2].value;
+        });
+        if (sameValue.length === 4) {
+            return true;
+        }
+    }
 
+    function hasFlush(cards) {
+        const arrSymbol = cards.map(function (item) {
+            return item.symbol
+        })
+        var isDuplicate = arrSymbol.every(function (item) {
+            return arrSymbol[0] === item;
+        })
+        return isDuplicate;
+    }
 
-    const result = (pokerHand) => {
-        // console.log(poker.highestCard(pokerHand))
-        // if (poker.highestCard(pokerHand)) {
-        //     setInspectHand("High Card")
-        // }
-        // if (poker.hasPair(pokerHand)) {
-        //     setInspectHand("Has Pair")
-        // }
-        // if (poker.hasTwoPairs(pokerHand)) {
-        //     setInspectHand("Has Two Pair")
-        // }
-        // if (poker.hasThreeOfAKind(pokerHand)) {
-        //     setInspectHand("Has Three Of A Kind")
-        // }
-        // if (poker.hasStraight(pokerHand)) {
-        //     setInspectHand("Has Straight")
-        // }
-        // if (poker.hasFlush(pokerHand)) {
-        //     setInspectHand("Has Flush")
-        // }
-        // if (poker.hasFullHouse(pokerHand)) {
-        //     setInspectHand("Has Full House")
-        // }
-        // if (poker.hasFourOfAKind(pokerHand)) {
-        //     setInspectHand("Has Four Of A Kind")
-        // }
-        // if (poker.hasStraightFlush(pokerHand)) {
-        //     setInspectHand("Has Straight Flush")
-        // }
-        // if (poker.hasRoyalFlush(pokerHand)) {
-        //     setInspectHand("Has Royal Flush")
-        // }
+    function hasStraight(cards) {
+        let start = cards[0].value;
+        let startIncrement = start
+        let end = cards[4].value;
+        if (start === 2 && end === 14) {
+            for (var i = 1; i < 4; i++) {
+                if (cards[i].value === startIncrement + 1) {
+                    startIncrement += 1;
+                    return true
+                }
+            }
+        }
+        for (var j = 1; j < 5; j++) {
+            if (cards[j].value === startIncrement + 1) {
+                startIncrement += 1;
+                continue;
+            } else {
+                return false
+            }
+        }
+        return true;
+    }
+
+    const result = (cards) => {
+        const sortedCards = cards.sort((a, b) => a.value - b.value);
+
+        //Royal flush
+        if (hasRoyalFlush(sortedCards)) {
+            console.log("Royal flush")
+        }
+        //Straight Flush
+        if (hasStraightFlush(sortedCards)) {
+            console.log("Straight flush")
+        }
+        //Four of kind
+        if (hasFourOfAKind(sortedCards)) {
+            console.log("Four of a Kind")
+        }
+
+        //Flush
+        if (hasFlush(sortedCards)) {
+            console.log("flush")
+        }
+        //Straight
+        if (hasStraight(sortedCards)) {
+            console.log("straight")
+        }
     };
 
     return (
         <div className="App">
             <h1>Your Poker Hand</h1>
             <button onClick={drawNewCards}>Draw new hands</button>
-            <div className="cards">{pokerHand}</div>
-            <div>You got: {inspectHand}</div>
+            <Cards cardsInHand={cardsInHand} />
+            <div>Your hand is: {result(cardsInHand)}</div>
         </div>
     );
 }
