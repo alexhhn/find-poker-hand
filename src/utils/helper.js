@@ -4,11 +4,10 @@ function createDeck() {
     const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
     const value = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
-    //itererer gjennom alle kort
-
-    for (var suitsCounter = 0; suitsCounter < 4; suitsCounter++) {
-        for (var ranksCounter = 0; ranksCounter < 13; ranksCounter++) {
-            // returner verdi tall + symbol
+    //itererer gjennom alle symbol og nummer
+    for (let suitsCounter = 0; suitsCounter < 4; suitsCounter++) {
+        for (let ranksCounter = 0; ranksCounter < 13; ranksCounter++) {
+            // returner verdi, nummer + symbol
             deck.push({ number: ranks[ranksCounter], symbol: suits[suitsCounter], value: value[ranksCounter] })
         }
     }
@@ -22,11 +21,12 @@ function shuffleDeck(cardInHand) {
         //plasser kort tilfeldig i dekket
         const randomIndex = Math.floor(Math.random() * 52);
         cardInHand[i] = cardInHand[randomIndex];
-        //tilfeldig kort blir nå vist frem til index 52
+        //kort er tilfeldig plassert
         cardInHand[randomIndex] = temporaryCard;
     }
 }
 
+//Samme funksjon som straight flush, men første kort må også ha verdi 10.
 function hasRoyalFlush(cards) {
     return hasStraightFlush(cards) && cards[0].value === 10;
 }
@@ -37,6 +37,7 @@ function hasStraightFlush(cards) {
     }
 }
 
+//Filtrerer 3 kortet for å finne riktig verdi
 function hasFourOfAKind(cards) {
     let sameValue = cards.filter(function (item) {
         return item.value === cards[2].value;
@@ -46,6 +47,7 @@ function hasFourOfAKind(cards) {
     }
 }
 
+//finner set på 2 forskjellige keys i object, også lage metode for å fjerne muligheten for 4 like
 function hasFullHouse(cards) {
     const obj = createSet(cards)
     if (Object.keys(obj).length === 2) {
@@ -56,6 +58,7 @@ function hasFullHouse(cards) {
     return false;
 }
 
+//filtrerer 3 kortet for å finne riktig verdi
 function hasThreeOfAKind(cards) {
     let sameValue = cards.filter(function (item) {
         return item.value === cards[2].value;
@@ -65,11 +68,12 @@ function hasThreeOfAKind(cards) {
     }
 }
 
+//Map for å finne symbol, kjører every for å få alle symbole like
 function hasFlush(cards) {
     const arrSymbol = cards.map(function (item) {
         return item.symbol
     })
-    var isDuplicate = arrSymbol.every(function (item) {
+    const isDuplicate = arrSymbol.every(function (item) {
         return arrSymbol[0] === item;
     })
     return isDuplicate;
@@ -79,15 +83,19 @@ function hasStraight(cards) {
     let start = cards[0].value;
     let startIncrement = start
     let end = cards[4].value;
+
+    //Hvis første verdi 2 og siste verdi er 14, gi verdi 14 til 1
     if (start === 2 && end === 14) {
-        for (var i = 1; i < 4; i++) {
+        for (let i = 1; i < 4; i++) {
             if (cards[i].value === startIncrement + 1) {
                 startIncrement += 1;
                 return true
             }
         }
     }
-    for (var j = 1; j < 5; j++) {
+
+    //Iterer og sjekk at verdi plusser med 1
+    for (let j = 1; j < 5; j++) {
         if (cards[j].value === startIncrement + 1) {
             startIncrement += 1;
             continue;
@@ -98,6 +106,7 @@ function hasStraight(cards) {
     return true;
 }
 
+//Set må ha 3 i lengde, men kan ikke ha value 3 for å unngå three of a kind.
 function hasTwoPair(cards) {
     const obj = createSet(cards)
     if (Object.keys(obj).length === 3) {
@@ -108,6 +117,7 @@ function hasTwoPair(cards) {
     return false;
 }
 
+//Set må være 4 for å finne par
 function hasOnlyPair(cards) {
     const obj = createSet(cards)
     if (Object.keys(obj).length === 4) {
@@ -116,12 +126,7 @@ function hasOnlyPair(cards) {
     return false;
 }
 
-function hasHighCard(cards) {
-    const highCard = cards[4].value
-    return true;
-}
-
-
+//Lager set som maper gjennom for å finne lik verdi
 function createSet(cards) {
     const obj = {};
     cards.map((card) => {
@@ -139,46 +144,43 @@ function createSet(cards) {
 function result(cards) {
     const sortedCards = cards.sort((a, b) => a.value - b.value);
 
-    //Royal flush
     if (hasRoyalFlush(sortedCards)) {
-        return "Royal Flush"
+        return "Royal Flush";
     }
-    //Straight Flush
+
     if (hasStraightFlush(sortedCards)) {
-        return "Straight flush"
+        return "Straight flush";
     }
-    //Four of kind
+
     if (hasFourOfAKind(sortedCards)) {
-        return "Four Of A Kind"
+        return "Four Of A Kind";
     }
-    //Full house
+
     if (hasFullHouse(sortedCards)) {
-        return "Full House"
+        return "Full House";
     }
-    // Three of a kind
+
     if (hasThreeOfAKind(sortedCards)) {
-        return "Three Of A Kind"
+        return "Three Of A Kind";
     }
-    //Flush
+
     if (hasFlush(sortedCards)) {
-        return "Flush"
+        return "Flush";
     }
-    //Straight
+
     if (hasStraight(sortedCards)) {
-        return "Straight"
+        return "Straight";
     }
-    //Denne kjører bare når det er 2 par
+
     if (hasTwoPair(sortedCards)) {
-        return "Two Pair"
+        return "Two Pair";
     }
-    //One pair
+
     if (hasOnlyPair(sortedCards)) {
-        return "Pair"
+        return "Pair";
     }
-    //High card
-    if (hasHighCard(sortedCards)) {
-        return "High card"
-    }
+
+    return "High card";
 };
 
-export { createDeck, shuffleDeck, hasRoyalFlush, hasStraightFlush, hasFourOfAKind, hasFullHouse, hasThreeOfAKind, hasStraight, hasTwoPair, hasOnlyPair, hasHighCard, createSet, result }
+export { createDeck, shuffleDeck, result }
