@@ -3,7 +3,6 @@ import { Cards } from './components/Cards/Cards';
 import { createDeck, shuffleDeck, result } from './utils/helper';
 import './App.css';
 import Map from './components/Map/Map';
-import Footer from './components/Footer/Footer';
 
 
 function App() {
@@ -25,8 +24,6 @@ function App() {
             </>
             }
             <Map />
-            <Footer />
-
         </div>
     );
 }
