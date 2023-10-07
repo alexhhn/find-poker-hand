@@ -23,7 +23,6 @@ function App() {
                 <div>Your hand is: {result(cardsInHand)}</div>
             </>
             }
-            <Map />
         </div>
     );
 }
