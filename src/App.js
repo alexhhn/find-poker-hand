@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Cards } from './components/Cards/Cards';
 import { createDeck, shuffleDeck, result } from './utils/helper';
 import './App.css';
+import Map from './components/Map/Map';
+import Footer from './components/Footer/Footer';
 
 
 function App() {
@@ -22,6 +24,9 @@ function App() {
                 <div>Your hand is: {result(cardsInHand)}</div>
             </>
             }
+            <Map />
+            <Footer />
+
         </div>
     );
 }
